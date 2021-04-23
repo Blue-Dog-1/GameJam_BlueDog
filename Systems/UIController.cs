@@ -8,6 +8,7 @@ using UnityEngine.UI;
 [Serializable]
 public class UIController
 {
+    [SerializeField] GameObject PauseMenu = null;
     [SerializeField] Image m_chargePuhs = null;
     [SerializeField] Image m_chargePull = null;
     [SerializeField] Text m_countTextPush = null;
@@ -43,6 +44,23 @@ public class UIController
         }
     }
     public int HP { set { m_countHP.text = value.ToString(); } }
+
+    public void Update()
+    {
+        if(Input.GetKeyDown(KeyCode.Escape))
+        {
+            PauseMenu.SetActive(!PauseMenu.activeSelf);
+
+            if (PauseMenu.activeSelf)
+            {
+                Time.timeScale = 0;
+            }
+            else
+            {
+                Time.timeScale = 1;
+            }
+        }
+    }
 
 
 

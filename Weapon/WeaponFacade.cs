@@ -13,6 +13,8 @@ public class WeaponFacade : MonoBehaviour
     [Header("RayCast")]
     [SerializeField] LayerMask layerMask = 1;
 
+    
+
     [SerializeField] Weapon PushGan = null;
     [SerializeField] Weapon PullGan = null;
     [SerializeField] CharacterController2D m_characterController2D;
@@ -47,9 +49,6 @@ public class WeaponFacade : MonoBehaviour
             angle += 180;
             y = 180;
         }
-        else {
-            angle = Mathf.Clamp(angle, -35f, 50f);
-        }
 
         transform.localRotation = Quaternion.Euler(new Vector3(0, y,  angle));
         #endregion
@@ -58,23 +57,26 @@ public class WeaponFacade : MonoBehaviour
         PullGan.Update(Input.GetKey(KeyCode.Mouse1));
 
         if (Input.GetKeyUp(KeyCode.Mouse0))
-            PushGan.Shoot(transform, layerMask);
+            StartCoroutine(PushGan.Shoot(transform, transform.right, layerMask));
 
         if (Input.GetKeyUp(KeyCode.Mouse1))
-            PullGan.Shoot(transform, layerMask);
+            StartCoroutine(PullGan.Shoot(transform, -transform.right, layerMask));
 
-        
+
+
+
     }
+
 
     public void OnPickUp(bool push)
     {
         if (push)
         {
-            WeaponFacade.Carent.PushGan.m_cartridge++;
+            WeaponFacade.Carent.PushGan.m_cartridge += 5;
             GameManager.UIController.CoutTextPush = WeaponFacade.Carent.PushGan.m_cartridge.ToString();
             return;
         }
-        WeaponFacade.Carent.PullGan.m_cartridge++;
+        WeaponFacade.Carent.PullGan.m_cartridge += 5;
         GameManager.UIController.CoutTextPull = WeaponFacade.Carent.PullGan.m_cartridge.ToString();
     }
 
@@ -89,7 +91,7 @@ public class WeaponFacade : MonoBehaviour
 public class Weapon
 {
     [SerializeField] bool isPushGan = false;
-    [Range(1, 10)]
+    [Range(1, 50)]
     [SerializeField] protected int m_rayLenght = 1;
 
     [SerializeField] protected float m_forse = 1;
@@ -99,6 +101,10 @@ public class Weapon
     [Range(0, 10)]
     [SerializeField] int m_maxIntensity = 1;
 
+    [Header("shoot VFX ")]
+    [SerializeField] ParticleSystem m_laser;
+    [SerializeField] ParticleSystem m_light;
+    [SerializeField] ParticleSystem m_lightningSpark;
 
     [SerializeField]
     UnityEvent OnShot = new UnityEvent();
@@ -106,11 +112,13 @@ public class Weapon
 
     protected float timeLastShot = 0;
     protected float intens = 0f;
-
     public void Update(bool mouseDown)
     {
         if (mouseDown && m_cartridge > 0)
-            intens += Time.deltaTime;
+        {
+            intens += Time.deltaTime * 5;
+            OnCast();
+        }
 
         intens = Mathf.Clamp(intens, 0, m_maxIntensity);
         if (isPushGan)
@@ -118,38 +126,49 @@ public class Weapon
         else GameManager.UIController.chargePull = 1 - ((1f / m_maxIntensity) * intens);
 
         if (!mouseDown)
-            intens -= Time.deltaTime;
+            intens -= Time.deltaTime * 5;
     }
-
-    public void Shoot(Transform transform, LayerMask layerMask)
+    void OnCast()
     {
+        if (!m_lightningSpark.isPlaying)
+        {
+            m_lightningSpark.Play();
+        }
+    }
+    public IEnumerator Shoot(Transform transform, Vector2 vector,LayerMask layerMask)
+    {
+        
         if (Time.time < timeLastShot + m_shotTimeOut)
         {
-            return;
+            yield break;
         }
         if (m_cartridge <= 0)
         {
-            return;
+            yield break;
         }
-        RaycastHit2D hitInfo = Physics2D.Raycast(transform.position, transform.right, m_rayLenght, layerMask);
-        var force = m_forse; // / (1 + Mathf.Pow(hitInfo.distance, 2));
-        if (!isPushGan) force *= -1; 
-        hitInfo.collider?.attachedRigidbody?.AddForce(transform.right * force * intens, ForceMode2D.Impulse);
-        timeLastShot = Time.time;
+        m_light.Play();
+        m_laser.Play();
+        m_lightningSpark.Stop();
 
+        while (m_laser.isPlaying)
+        {
+            RaycastHit2D[] hitInfo = Physics2D.RaycastAll(transform.position, transform.right, m_rayLenght, layerMask);
+            for (int i = 0; i < hitInfo.Length; i++)
+                hitInfo[i].collider?.attachedRigidbody?.AddForce((vector * intens * Time.deltaTime) * m_forse, ForceMode2D.Impulse);
+
+            yield return new WaitForFixedUpdate();
+        }
+        timeLastShot = Time.time;
         m_cartridge--;
 
         if (isPushGan)
-        {
             GameManager.UIController.CoutTextPush = m_cartridge.ToString();
-        }
         else
-        {
             GameManager.UIController.CoutTextPull = m_cartridge.ToString();
-        }
-
+       
         OnShot.Invoke();
     }
+    
 }
 
 

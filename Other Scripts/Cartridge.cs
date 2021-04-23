@@ -10,9 +10,28 @@ public class Cartridge : MonoBehaviour
     {
         if (collision.gameObject.name == GameManager.PLAYER_NAME)
         {
-            WeaponFacade.Carent.OnPickUp(isPushCatride);
-            Debug.Log("pick up");
-            Destroy(gameObject);
+            StartCoroutine(Move(collision.transform));
         }
+    }
+
+    IEnumerator Move(Transform target)
+    {
+        float distance;
+        while(true)
+        {
+            distance = Vector3.Distance(transform.position, target.position);
+            transform.position = Vector3.Lerp(transform.position, target.position, GameManager.velocityMoveCoins * Time.fixedDeltaTime );   
+            yield return new WaitForFixedUpdate();
+            if (distance < .5f)
+                break;
+        }
+        Destroy();
+    }
+
+    void Destroy()
+    {
+        WeaponFacade.Carent.OnPickUp(isPushCatride);
+        Debug.Log("pick up");
+        Destroy(gameObject);
     }
 }

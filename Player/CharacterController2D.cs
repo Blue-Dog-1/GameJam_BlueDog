@@ -110,7 +110,7 @@ public class CharacterController2D : MonoBehaviour
     {
         if (collision.rigidbody)
         {
-            HP -= (int)(collision.rigidbody.mass * collision.rigidbody.velocity.magnitude);
+            HP -= (int)((collision.rigidbody.mass * collision.rigidbody.velocity.magnitude) * .1f);
             if (HP <= 0)
             {
                 HP = 0;
