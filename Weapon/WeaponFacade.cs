@@ -6,19 +6,16 @@ using UnityEngine.Events;
 public class WeaponFacade : MonoBehaviour
 {
     static public WeaponFacade Carent { get; private set;}
-    [SerializeField]
-    CharacterController2D characterController2D;
+    [SerializeField] CharacterController2D m_characterController2D;
     [SerializeField] int m_viewingAngle;
 
     [Header("RayCast")]
     [SerializeField] LayerMask layerMask = 1;
 
-    
-
     [SerializeField] Weapon PushGan = null;
     [SerializeField] Weapon PullGan = null;
-    [SerializeField] CharacterController2D m_characterController2D;
 
+    [SerializeField] UnityEvent OnMouseDownEvent;
 
     Vector3 mouse_pos, object_pos;
     float angle;
@@ -31,6 +28,9 @@ public class WeaponFacade : MonoBehaviour
         GameManager.UIController.CoutTextPush = WeaponFacade.Carent.PushGan.m_cartridge.ToString();
 
         GameManager.UIController.CoutTextPull = WeaponFacade.Carent.PullGan.m_cartridge.ToString();
+
+        PushGan.OnChargingGun += OnMouseDownEvent.Invoke;
+        PullGan.OnChargingGun += OnMouseDownEvent.Invoke;
     }
 
     void Update()
@@ -62,28 +62,25 @@ public class WeaponFacade : MonoBehaviour
         if (Input.GetKeyUp(KeyCode.Mouse1))
             StartCoroutine(PullGan.Shoot(transform, -transform.right, layerMask));
 
-
-
-
     }
 
 
-    public void OnPickUp(bool push)
+    public void OnPickUp(bool push, int count )
     {
         if (push)
         {
-            WeaponFacade.Carent.PushGan.m_cartridge += 5;
+            WeaponFacade.Carent.PushGan.m_cartridge += count;
             GameManager.UIController.CoutTextPush = WeaponFacade.Carent.PushGan.m_cartridge.ToString();
             return;
         }
-        WeaponFacade.Carent.PullGan.m_cartridge += 5;
+        WeaponFacade.Carent.PullGan.m_cartridge += count;
         GameManager.UIController.CoutTextPull = WeaponFacade.Carent.PullGan.m_cartridge.ToString();
     }
 
     private void OnDrawGizmos()
     {
         Gizmos.color = Color.red;
-        Gizmos.DrawRay(transform.position, transform.right * 8);
+        Gizmos.DrawRay(transform.position, transform.right * PullGan.rayLenght);
     }
 }
 
@@ -109,9 +106,13 @@ public class Weapon
     [SerializeField]
     UnityEvent OnShot = new UnityEvent();
 
+    public UnityAction OnChargingGun;
+
 
     protected float timeLastShot = 0;
     protected float intens = 0f;
+    public float rayLenght => m_rayLenght;
+
     public void Update(bool mouseDown)
     {
         if (mouseDown && m_cartridge > 0)
@@ -133,6 +134,7 @@ public class Weapon
         if (!m_lightningSpark.isPlaying)
         {
             m_lightningSpark.Play();
+            OnChargingGun?.Invoke();
         }
     }
     public IEnumerator Shoot(Transform transform, Vector2 vector,LayerMask layerMask)
@@ -150,11 +152,16 @@ public class Weapon
         m_laser.Play();
         m_lightningSpark.Stop();
 
+        OnShot.Invoke();
+
         while (m_laser.isPlaying)
         {
             RaycastHit2D[] hitInfo = Physics2D.RaycastAll(transform.position, transform.right, m_rayLenght, layerMask);
             for (int i = 0; i < hitInfo.Length; i++)
+            {
+                if (hitInfo[i].collider.gameObject.layer == 8) break;
                 hitInfo[i].collider?.attachedRigidbody?.AddForce((vector * intens * Time.deltaTime) * m_forse, ForceMode2D.Impulse);
+            }
 
             yield return new WaitForFixedUpdate();
         }
@@ -166,7 +173,6 @@ public class Weapon
         else
             GameManager.UIController.CoutTextPull = m_cartridge.ToString();
        
-        OnShot.Invoke();
     }
     
 }

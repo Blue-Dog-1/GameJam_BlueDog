@@ -9,11 +9,16 @@ using UnityEngine.UI;
 public class UIController
 {
     [SerializeField] GameObject PauseMenu = null;
+    [Header("                         Charge image")]
     [SerializeField] Image m_chargePuhs = null;
     [SerializeField] Image m_chargePull = null;
+    [Header("                         Charge Text")]
     [SerializeField] Text m_countTextPush = null;
     [SerializeField] Text m_countTextPull = null;
+    [Space]
     [SerializeField] Text m_countHP = null;
+    [Range(20, 90)]
+    [SerializeField] int minHPWarning = 20;
 
 
     public float chargePuhs {
@@ -43,7 +48,10 @@ public class UIController
             m_countTextPull.text = value;
         }
     }
-    public int HP { set { m_countHP.text = value.ToString(); } }
+    public int HP { set { m_countHP.text = value.ToString(); 
+        if(value < minHPWarning)
+                m_countHP.color = Color.red;
+        } }
 
     public void Update()
     {

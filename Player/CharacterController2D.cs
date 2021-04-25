@@ -6,6 +6,8 @@ using UnityEngine.Events;
 
 public class CharacterController2D : MonoBehaviour
 {
+    static public CharacterController2D Main { get; private set; }
+
     [SerializeField] LayerMask layerMask = 1;
     [Range(0f, 20f)]
     [SerializeField] float m_velocity = 0f;
@@ -17,12 +19,18 @@ public class CharacterController2D : MonoBehaviour
     [SerializeField] int HP = 1000;
     [SerializeField] Transform m_target;
     [SerializeField] Transform m_Head;
-
+    [SerializeField] float m_demageMadificator = 0.01f;
+    [Header("Camera Settings")]
+    [Range (0, 10)]
+    [SerializeField] byte OffsetY = 2;
+    [SerializeField] float m_velosytyCamera = 0.1f;
 
     [Header("Events")]
     [Space]
     public UnityEvent OnLandEvent;
     public UnityEvent OnJumpEvent;
+    [SerializeField] UnityEvent OnPickUpEvent;
+    static public void PickUp() => Main.OnPickUpEvent.Invoke();
 
 
     new Rigidbody2D rigidbody;
@@ -37,6 +45,8 @@ public class CharacterController2D : MonoBehaviour
     {
         rigidbody = GetComponent<Rigidbody2D>();
         camera = Camera.main.transform;
+        Main = this;
+        
 
     }
     private void FixedUpdate()
@@ -82,8 +92,9 @@ public class CharacterController2D : MonoBehaviour
     void CameraTraking()
     {
         var pos = transform.position;
-        pos.z = camera.position.z;
-        camera.position = Vector3.Lerp(pos, camera.position, Time.fixedDeltaTime);
+        pos.z = camera.position.z;      
+        pos.y += OffsetY; 
+        camera.position = Vector3.Lerp(pos, camera.position, m_velosytyCamera);
     }
     public void OnJump()
     {
@@ -94,33 +105,32 @@ public class CharacterController2D : MonoBehaviour
 
     private void Flip()
     {
-        //var y = (m_FacingRight) ? 0 : 180;
-        //Skin.rotation = Quaternion.Euler(0, y, 0);
-
         m_FacingRight = !m_FacingRight;
-
 
         Vector3 theScale = Skin.localScale;
         theScale.x *= -1;
         Skin.localScale = m_Head.localScale = theScale;
-
     }
 
     private void OnCollisionEnter2D(Collision2D collision)
     {
         if (collision.rigidbody)
         {
-            HP -= (int)((collision.rigidbody.mass * collision.rigidbody.velocity.magnitude) * .1f);
-            if (HP <= 0)
-            {
-                HP = 0;
-                GameManager.OnEndGame();
-            }
-            GameManager.UIController.HP = HP;
+            ToDamage((int)((collision.rigidbody.mass * collision.rigidbody.velocity.magnitude) * m_demageMadificator));
         }
     }
+    public void ToDamage(int damage)
+    {
+        HP -= damage;
+        if (HP <= 0)
+        {
+            HP = 0;
+            GameManager.OnEndGame();
+        }
+        GameManager.UIController.HP = HP;
+    }
 
-   
+
     private void OnDrawGizmosSelected()
     {
         Gizmos.color = Color.green;
