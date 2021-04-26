@@ -29,6 +29,11 @@ public class Enemy : MonoBehaviour
     [SerializeField] int m_damageDone = 10;
 
     [Space]
+    [Header("Drop Loot")]
+    [SerializeField] Cartridge m_Cartridge;
+    [SerializeField] int m_CartridgeCount = 5;
+    [Space]
+
 
     public float diameterFieldView = 30;
 
@@ -104,8 +109,24 @@ public class Enemy : MonoBehaviour
         {
             m_HP = 0;
             Debug.Log("Kill enemy");
-            enabled = false;
+            Kill();
         }
+    }
+    [ContextMenu("Kill")]
+    public void Kill()
+    {
+        OnDischargeChargeEvent.Invoke();
+        state = new Perish(this);
+        Destroy(GetComponent<Rigidbody2D>());
+    }
+    public void SpawnLoot()
+    {
+        var cartridge = Instantiate(m_Cartridge);
+        Vector2 pos = transform.position;
+        pos.y += 2f;
+        cartridge.transform.position = pos;
+        cartridge.m_count = m_CartridgeCount;
+        WeaponFacade.Carent.Boost = 5;
     }
     public bool Flip(float x)
     {
@@ -283,6 +304,30 @@ public struct Run : State
     }
 }
 
+
+public struct Perish : State
+{
+
+    Enemy enemy;
+    float time;
+    public Perish(Enemy enemy)
+    {
+        this.time = Time.time + 2f;
+        this.enemy = enemy;
+    }
+    public void Update()
+    {
+        enemy.transform.rotation = Quaternion.Lerp(enemy.transform.rotation, Quaternion.FromToRotation(Vector2.up, Vector2.right), Time.deltaTime);
+
+        enemy.transform.Translate(Vector2.down * Time.deltaTime);
+        
+        if(time < Time.time)
+        {
+            enemy.SpawnLoot();
+            GameObject.Destroy(enemy.gameObject);
+        }
+    }
+}
 public enum States
 {
     idel,

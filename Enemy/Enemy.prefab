@@ -317,7 +317,7 @@ Rigidbody2D:
   m_Simulated: 1
   m_UseFullKinematicContacts: 0
   m_UseAutoMass: 0
-  m_Mass: 10
+  m_Mass: 35
   m_LinearDrag: 0
   m_AngularDrag: 0.05
   m_GravityScale: 1
@@ -347,7 +347,7 @@ MonoBehaviour:
     serializedVersion: 2
     m_Bits: 256
   m_HP: 200
-  m_demageMadificator: 20
+  m_demageMadificator: 70
   m_layerMask:
     serializedVersion: 2
     m_Bits: 769
@@ -355,6 +355,9 @@ MonoBehaviour:
   m_force: 50
   m_rechargeTime: 3
   m_damageDone: 10
+  m_Cartridge: {fileID: 5585939608208299728, guid: 1735b773f033421439a1832267c305cb,
+    type: 3}
+  m_CartridgeCount: 5
   diameterFieldView: 30
   m_velocity: 0.3
   m_attackDistance: 12

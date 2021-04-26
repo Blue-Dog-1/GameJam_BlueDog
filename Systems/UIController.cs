@@ -19,6 +19,7 @@ public class UIController
     [SerializeField] Text m_countHP = null;
     [Range(20, 90)]
     [SerializeField] int minHPWarning = 20;
+    [SerializeField] Text m_BoostAria;
 
 
     public float chargePuhs {
@@ -52,7 +53,14 @@ public class UIController
         if(value < minHPWarning)
                 m_countHP.color = Color.red;
         } }
-
+    public bool Boost
+    {
+        get => m_BoostAria.gameObject.activeSelf;
+        set {
+            m_BoostAria.gameObject.SetActive(value);
+            //m_BoostAria.text = "BOOST" + WeaponFacade.Carent.Boost.ToString();
+        }
+    }
     public void Update()
     {
         if(Input.GetKeyDown(KeyCode.Escape))

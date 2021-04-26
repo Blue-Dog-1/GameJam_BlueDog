@@ -19,7 +19,26 @@ public class WeaponFacade : MonoBehaviour
 
     Vector3 mouse_pos, object_pos;
     float angle;
+    int boost;
+    public int Boost
+    {
+        get
+        {
+            if(boost > 0)
+                boost--;
+            else
+                GameManager.UIController.Boost = false;
+            Debug.Log(boost);
 
+            return boost;
+        }
+        set
+        {
+            boost += value;
+            Debug.Log(boost);
+            GameManager.UIController.Boost = true;
+        }
+    }
 
     void Start()
     {
@@ -153,6 +172,7 @@ public class Weapon
         m_lightningSpark.Stop();
 
         OnShot.Invoke();
+        var boost = WeaponFacade.Carent.Boost > 0 ? 10 : 1;
 
         while (m_laser.isPlaying)
         {
@@ -160,8 +180,13 @@ public class Weapon
             for (int i = 0; i < hitInfo.Length; i++)
             {
                 if (hitInfo[i].collider.gameObject.layer == 8) break;
-                hitInfo[i].collider?.attachedRigidbody?.AddForce((vector * intens * Time.deltaTime) * m_forse, ForceMode2D.Impulse);
+                hitInfo[i].collider?.attachedRigidbody?.AddForce((vector * intens * Time.deltaTime) * 
+
+                    (boost * m_forse)
+                    
+                    , ForceMode2D.Impulse);
             }
+
 
             yield return new WaitForFixedUpdate();
         }

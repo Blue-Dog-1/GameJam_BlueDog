@@ -123,6 +123,7 @@ MonoBehaviour:
     m_countTextPull: {fileID: 3318430313051004411}
     m_countHP: {fileID: 3318430314068673871}
     minHPWarning: 20
+    m_BoostAria: {fileID: 6425181727217498976}
   m_velocityMoveCoins: 0.03
   OnEndGameEvent:
     m_PersistentCalls:
@@ -335,6 +336,11 @@ PrefabInstance:
   m_Modification:
     m_TransformParent: {fileID: 3318430313391290729}
     m_Modifications:
+    - target: {fileID: 8227378538716305024, guid: 9484aab359de192469b460e3e3216271,
+        type: 3}
+      propertyPath: m_IsActive
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 8329882517140933444, guid: 9484aab359de192469b460e3e3216271,
         type: 3}
       propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_Target
@@ -517,6 +523,18 @@ MonoBehaviour:
 --- !u!114 &3318430313051004411 stripped
 MonoBehaviour:
   m_CorrespondingSourceObject: {fileID: 8329882518097550051, guid: 9484aab359de192469b460e3e3216271,
+    type: 3}
+  m_PrefabInstance: {fileID: 6743259516457699096}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5f7201a12d95ffc409449d95f23cf332, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+--- !u!114 &6425181727217498976 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 341722100808744056, guid: 9484aab359de192469b460e3e3216271,
     type: 3}
   m_PrefabInstance: {fileID: 6743259516457699096}
   m_PrefabAsset: {fileID: 0}

@@ -5,7 +5,7 @@ using UnityEngine;
 public class Cartridge : MonoBehaviour
 {
     [Range(1, 10)]
-    [SerializeField] int m_count = 5;
+    [SerializeField] public int m_count = 5;
     [SerializeField]
     bool isPushCatride = true;
     [SerializeField]
