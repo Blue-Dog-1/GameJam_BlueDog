@@ -24,19 +24,13 @@ public class WeaponFacade : MonoBehaviour
     {
         get
         {
-            if(boost > 0)
-                boost--;
-            else
-                GameManager.UIController.Boost = false;
-            Debug.Log(boost);
-
+            GameManager.UIController.Boost = boost > 0;
             return boost;
         }
         set
         {
-            boost += value;
-            Debug.Log(boost);
-            GameManager.UIController.Boost = true;
+            boost = value;
+            GameManager.UIController.Boost = boost > 0;
         }
     }
 
@@ -80,6 +74,8 @@ public class WeaponFacade : MonoBehaviour
 
         if (Input.GetKeyUp(KeyCode.Mouse1))
             StartCoroutine(PullGan.Shoot(transform, -transform.right, layerMask));
+
+
 
     }
 
@@ -172,7 +168,13 @@ public class Weapon
         m_lightningSpark.Stop();
 
         OnShot.Invoke();
-        var boost = WeaponFacade.Carent.Boost > 0 ? 10 : 1;
+        var boost = 1;
+        if (WeaponFacade.Carent.Boost > 0 && Input.GetKey(KeyCode.Q))
+        {
+            boost = 10;
+            WeaponFacade.Carent.Boost--;
+        }
+
 
         while (m_laser.isPlaying)
         {

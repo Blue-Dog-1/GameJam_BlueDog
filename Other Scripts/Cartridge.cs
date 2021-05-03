@@ -26,10 +26,7 @@ public class Cartridge : MonoBehaviour
     private void OnTriggerEnter2D(Collider2D collision)
     {
         Destroy(gameObject.GetComponent<Collider>());
-        if (isSuperPower)
-        {
-            return;
-        }
+       
         if (collision.gameObject.name == GameManager.PLAYER_NAME)
         {
             StartCoroutine(Move(collision.transform));
@@ -57,6 +54,8 @@ public class Cartridge : MonoBehaviour
     {
         WeaponFacade.Carent.OnPickUp(isPushCatride, m_count);
         CharacterController2D.PickUp();
+        if(isSuperPower)
+        WeaponFacade.Carent.Boost += 1;
         Destroy(gameObject);
     }
 }
